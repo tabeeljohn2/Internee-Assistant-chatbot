@@ -1,8 +1,6 @@
-# Internee Assistant
+﻿# Internee Assistant
 
 An automated support chatbot for Internee.pk interns. It answers common questions about task submission, certificates, assigned tasks and support contacts, and it is clear with users that they are talking to an automated assistant, not a person.
-
-> **Live demo:** _add the deployed link here_
 
 ## Overview
 
@@ -154,3 +152,4 @@ The backend is intended for a Python web host such as Render, and the frontend f
 ## Author
 
 Built by [tabeeljohn2](https://github.com/tabeeljohn2) as part of the Internee.pk internship program.
+
