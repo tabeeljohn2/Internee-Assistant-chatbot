@@ -1,0 +1,11 @@
+Internee.pk is a virtual, AI-powered internship platform for Pakistani students.
+Interns get tasks in the Task Portal. They click Guidelines to read the instructions, complete the work, upload project files to a shared cloud folder such as Google Drive, then click Submit Task and add the link for verification.
+After successfully completing the assigned tasks and verification, Internee.pk issues a certificate. Certificates use the name on the account profile.
+The Generative AI Internship has 5 tasks:
+1) AI Personalized Learning Assistant
+2) AI Resume Evaluator
+3) Chatbot for Intern Queries (tools: Rasa, Dialogflow, OpenAI API, Flask)
+4) AI Career Path Recommender (tools: Python, TensorFlow, OpenAI API)
+5) Generative AI-Based Mock Interviewer (tools: Next.js, OpenAI API, Firebase).
+The Internship dashboard in the portal shows the days remaining.
+Support: technical and account issues: issues@internee.pk. General inquiries: info@internee.pk. Phone: +92 312 3023645.

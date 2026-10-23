@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Internee.pk Assistant</title>
+  <style>
+    :root {
+      --green: #3fa524;
+      --green-dark: #2b7a18;
+      --green-light: #eaf6e6;
+      --mint: #f4faf2;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+    }
+
+                    .avatar-circle {
+      /* ADJUST THESE THREE VALUES */
+      --size: 190px;   /* circle size */
+      --zoom: 1.15;    /* 1 = whole frame, bigger = closer on the robot */
+      --pos-x: 50%;    /* 0% = show left side, 100% = show right side */
+      --pos-y: 30%;    /* 0% = show top, 100% = show bottom */
+
+      position: relative; flex: none; width: var(--size); height: var(--size); border-radius: 50%;
+      margin-top: 28px; background: #fff; overflow: hidden;
+      box-shadow: 0 0 0 10px rgba(63, 165, 36, .15), 0 0 0 22px rgba(63, 165, 36, .08);
+    }
+    .avatar-circle img {
+      width: 100%; height: 100%; display: block;
+      object-fit: cover; object-position: var(--pos-x) var(--pos-y);
+      transform: scale(var(--zoom)); transform-origin: var(--pos-x) var(--pos-y);
+    }
+
+    * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--ink);
+      background: linear-gradient(160deg, #dff3d9 0%, #f4faf2 55%, #ffffff 100%);
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    #app {
+      width: 100%; max-width: 420px; height: 100vh; height: 100dvh;
+      background: #fff; display: flex; flex-direction: column; overflow: hidden;
+      position: relative;
+    }
+    @media (min-width: 520px) {
+      #app { height: min(780px, 94vh); border-radius: 28px;
+             box-shadow: 0 18px 50px rgba(43, 122, 24, .18); }
+    }
+
+    .view { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+
+    /* ---------- Welcome view ---------- */
+    #welcome {
+      align-items: center; text-align: center; padding: 40px 28px 28px;
+      background: radial-gradient(circle at 50% 18%, var(--green-light) 0%, #fff 62%);
+    }
+    .logo {
+      width: 128px; height: 128px; border-radius: 50%; margin-top: 28px;
+      background: linear-gradient(145deg, #5cc23f, var(--green-dark));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 56px; font-weight: bold;
+      box-shadow: 0 0 0 14px rgba(63, 165, 36, .12), 0 0 0 30px rgba(63, 165, 36, .06);
+    }
+    #welcome h2 { font-size: 26px; margin: 48px 0 6px; font-weight: normal; }
+    #welcome h2 b { color: var(--green); display: block; font-size: 30px; }
+    #welcome p { color: var(--muted); font-size: 14px; line-height: 1.5; margin: 12px 0 0; }
+    .badge {
+      margin-top: 16px; font-size: 12px; color: var(--green-dark);
+      background: var(--green-light); padding: 6px 12px; border-radius: 14px;
+    }
+       #start {
+      margin-top: auto; width: 100%; border: 0; border-radius: 30px; cursor: pointer;
+      padding: 16px 22px; font-size: 16px; color: #fff; text-align: center;
+      background: linear-gradient(90deg, var(--green), var(--green-dark));
+      display: flex; justify-content: center; align-items: center;
+    }
+
+    /* ---------- Chat view ---------- */
+    .top {
+      background: linear-gradient(135deg, #5cc23f, var(--green-dark));
+      color: #fff; padding: 16px 14px 20px; border-radius: 0 0 26px 26px;      display: flex; align-items: center; gap: 10px;
+    }
+    .top .titles { flex: 1; min-width: 0; }
+    .top h1 { font-size: 17px; margin: 0; }
+    .top .sub { font-size: 12px; opacity: .9; margin-top: 2px; }
+        .icon-btn {
+      width: 36px; height: 36px; border: 0; border-radius: 50%; cursor: pointer;
+      background: rgba(255, 255, 255, .22); color: #fff; font-size: 16px;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    #messages { flex: 1; min-height: 0; overflow-y: auto; padding: 16px 14px 6px; background: var(--mint); }
+    .row { display: flex; gap: 8px; margin: 12px 0; align-items: flex-end; }
+    .row.user { flex-direction: row-reverse; }
+        .avatar {
+      position: relative; overflow: hidden;
+      width: 36px; height: 36px; border-radius: 50%; flex: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; font-weight: bold; color: #fff;
+    }
+    .row.bot .avatar { background: #fcfcff; border: 1px solid #cfe8c7; }
+    .avatar img {
+      position: absolute; display: block; max-width: none; height: auto;
+      width: 145.5%; left: -24.3%; top: 9.1%;
+    }
+    .row.user .avatar { background: #9ca3af; }
+    .bubble {
+      max-width: 78%; padding: 10px 12px; font-size: 14px; line-height: 1.5;
+      white-space: pre-wrap; overflow-wrap: anywhere;
+    }
+    .row.bot .bubble {
+      background: #fff; border: 1px solid #dcefd6; border-radius: 16px 16px 16px 4px;
+    }
+    .row.user .bubble {
+      background: linear-gradient(135deg, #5cc23f, var(--green-dark)); color: #fff;
+      border-radius: 16px 16px 4px 16px;
+    }
+    .actions { display: flex; gap: 6px; margin-top: 8px; border-top: 1px solid var(--line); padding-top: 6px; }
+    .actions button {
+      border: 0; background: none; color: var(--muted); font-size: 12px; cursor: pointer;
+      padding: 4px 6px; border-radius: 6px;
+    }
+    .actions button:hover { background: var(--green-light); color: var(--green-dark); }
+    .actions button.on { background: var(--green-light); color: var(--green-dark); font-weight: bold; }
+
+    .typing span {
+      display: inline-block; width: 7px; height: 7px; margin: 0 2px; border-radius: 50%;
+      background: #9ca3af; animation: bounce 1s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+
+        #chips {
+      display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 14px 12px;
+      background: var(--mint); border-top: 1px solid #e3f1de;
+    }
+    #chips::before {
+      content: "Quick questions"; width: 100%;
+      font-size: 11px; font-weight: bold; letter-spacing: .5px; text-transform: uppercase;
+      color: var(--green-dark); opacity: .7; margin-bottom: 2px;
+    }
+    .chip {
+      border: 0; background: var(--green-light); color: var(--green-dark);
+      border-radius: 14px; padding: 8px 12px; font-size: 12.5px; line-height: 1.2;
+      cursor: pointer; font-family: inherit; text-align: left;
+      transition: background .15s, color .15s;
+    }
+    .chip:hover { background: var(--green); color: #fff; }
+
+    form {
+      display: flex; align-items: center; gap: 8px; margin: 0;
+      padding: 10px 14px 8px; background: #fff;    }
+    #input {
+      flex: 1; min-width: 0; border: 1px solid var(--line); border-radius: 24px;
+      padding: 12px 16px; font-size: 16px; outline: none; background: var(--mint);
+    }
+    #input:focus { border-color: var(--green); background: #fff; }
+    #send {
+      width: 44px; height: 44px; border: 0; border-radius: 50%; cursor: pointer; flex: none;
+      background: linear-gradient(135deg, #5cc23f, var(--green-dark));
+      display: flex; align-items: center; justify-content: center;
+    }
+    #send:disabled { background: #b7dcae; cursor: default; }
+    .note {
+      font-size: 11.5px; color: var(--muted); text-align: center;
+      padding: 2px 14px calc(14px + env(safe-area-inset-bottom, 0px)); background: #fff;
+    }
+    .note a { color: var(--green-dark); text-decoration: none; font-weight: bold; }
+    .note a:hover { text-decoration: underline; }  </style>
+</head>
+<body>
+  <div id="app">
+
+    <!-- Welcome screen -->
+        <section id="welcome" class="view">
+      <div class="avatar-circle">
+        <img src="robot.gif" alt="">
+      </div>
+
+      <h2>Hello! I’m the<b>Internee Assistant</b></h2>
+      <p>Ask about task submission, certificates, your tasks and support contacts. Quick answers, any time.</p>
+      <div class="spacer"></div>
+            <button id="start" type="button">Start Chatting</button>
+    </section>
+
+    <!-- Chat screen -->
+    <section id="chat" class="view" hidden>
+            <div class="top">
+        <button id="back" class="icon-btn" type="button" aria-label="Home" title="Home">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>
+        </button>
+        <div class="titles">
+          <h1>Internee Assistant</h1>
+        </div>
+        <button id="reset" class="icon-btn" type="button" aria-label="Start over" title="Start over">&#8635;</button>
+      </div>
+
+      <div id="messages"></div>
+      <div id="chips"></div>
+
+      <form id="form">
+        <input id="input" maxlength="500" autocomplete="off" placeholder="Ask anything about your internship...">
+        <button id="send" type="submit" aria-label="Send">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M3 20l18-8L3 4v6l12 2-12 2z"/></svg>
+        </button>
+      </form>
+      <div class="note">Automated assistant &middot; Need help? <a href="https://internee.pk" target="_blank" rel="noopener">internee.pk</a></div>
+  </div>
+
+  <script>
+    // Change this when the backend is deployed
+    var API_URL = "http://127.0.0.1:5000";
+
+    var QUICK = [
+      "How do I submit a task?",
+      "How do I get my certificate?",
+      "What tasks do I have?",
+      "How do I contact support?",
+      "Talk to a person"
+    ];
+
+    var welcomeView = document.getElementById("welcome");
+    var chatView = document.getElementById("chat");
+    var messages = document.getElementById("messages");
+    var chips = document.getElementById("chips");
+    var form = document.getElementById("form");
+    var input = document.getElementById("input");
+    var sendBtn = document.getElementById("send");
+    var sessionId = crypto.randomUUID();
+
+    function row(who) {
+      var r = document.createElement("div");
+      r.className = "row " + who;
+      var av = document.createElement("div");
+      av.className = "avatar";
+      if (who === "bot") {
+        var im = document.createElement("img");
+        im.src = "bot.gif";
+        im.alt = "";
+        av.appendChild(im);
+      } else {
+        av.textContent = "U";
+      }      var bubble = document.createElement("div");
+      bubble.className = "bubble";
+      r.appendChild(av);
+      r.appendChild(bubble);
+      messages.appendChild(r);
+      messages.scrollTop = messages.scrollHeight;
+      return { row: r, bubble: bubble };
+    }
+
+    function addUser(text) {
+      row("user").bubble.textContent = text;
+    }
+
+
+    function addBot(text, withActions) {
+      var r = row("bot");
+      var p = document.createElement("div");
+      p.textContent = text;
+      r.bubble.appendChild(p);
+      messages.scrollTop = messages.scrollHeight;
+      return r;
+    }
+
+    function addTyping() {
+      var r = row("bot");
+      var t = document.createElement("div");
+      t.className = "typing";
+      for (var i = 0; i < 3; i++) t.appendChild(document.createElement("span"));
+      r.bubble.appendChild(t);
+      return r;
+    }
+
+    function greet() {
+      addBot("Hi! I’m the Internee Assistant, an automated helper.", false);
+    }
+
+    function renderChips() {
+      chips.textContent = "";
+      QUICK.forEach(function (q) {
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "chip";
+        b.textContent = q;
+        b.addEventListener("click", function () { send(q); });
+        chips.appendChild(b);
+      });
+    }
+
+    async function send(text) {
+      text = text.trim();
+      if (!text || sendBtn.disabled) return;
+            addUser(text);
+      chips.style.display = "none";
+      input.value = "";
+      sendBtn.disabled = true;
+      var waiting = addTyping();
+      var reply;
+      try {
+        var res = await fetch(API_URL + "/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: text, session_id: sessionId })
+        });
+        var data = await res.json();
+        reply = data.reply || "Sorry, something went wrong.";
+      } catch (err) {
+        reply = "Sorry, I can’t reach the server. Please try again later.";
+      }
+      waiting.row.remove();
+      addBot(reply, true);
+      sendBtn.disabled = false;
+      input.focus();
+    }
+
+    function showChat() {
+      welcomeView.hidden = true;
+      chatView.hidden = false;
+      input.focus();
+    }
+
+    document.getElementById("start").addEventListener("click", showChat);
+    document.getElementById("back").addEventListener("click", function () {
+      chatView.hidden = true;
+      welcomeView.hidden = false;
+    });
+    document.getElementById("reset").addEventListener("click", function () {
+      messages.textContent = "";
+      sessionId = crypto.randomUUID();
+      greet();
+    });
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      send(input.value);
+    });
+
+    greet();
+    renderChips();
+  </script>
+</body>
+</html>
